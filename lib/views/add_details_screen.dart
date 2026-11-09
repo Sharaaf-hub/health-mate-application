@@ -1,7 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import '../controllers/health_controller.dart';
+import 'package:provider/provider.dart';
+
+import '../controllers/health_provider.dart';
 import '../models/health_record.dart';
 import 'list_screen.dart';
 import 'search_screen.dart';
@@ -24,8 +26,6 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
   final TextEditingController caloriesController = TextEditingController();
   final TextEditingController waterController = TextEditingController();
 
-  late final HealthController _healthController;
-
   DateTime selectedDate = DateTime.now();
   bool isSaving = false;
 
@@ -38,7 +38,7 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _healthController = HealthController(userId: widget.userId);
+
   }
 
   Future<void> selectDate() async {
@@ -96,7 +96,7 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
     );
 
     try {
-      await _healthController.addRecord(record);
+      await context.read<HealthProvider>().addRecord(record);
 
       if (!mounted) return;
 

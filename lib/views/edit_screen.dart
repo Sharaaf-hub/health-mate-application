@@ -4,7 +4,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../controllers/health_controller.dart';
+import 'package:provider/provider.dart';
+
+import '../controllers/health_provider.dart';
 import '../models/health_record.dart';
 
 class EditScreen extends StatefulWidget {
@@ -22,7 +24,7 @@ class EditScreen extends StatefulWidget {
 }
 
 class _EditScreenState extends State<EditScreen> {
-  late final HealthController _healthController;
+
 
   late final TextEditingController stepsController;
   late final TextEditingController caloriesController;
@@ -45,7 +47,7 @@ class _EditScreenState extends State<EditScreen> {
       SystemUiMode.edgeToEdge,
     );
 
-    _healthController = HealthController(userId: widget.userId);
+
 
     stepsController = TextEditingController(
       text: widget.record.steps.toString(),
@@ -78,9 +80,11 @@ class _EditScreenState extends State<EditScreen> {
   }
 
   Future<void> updateRecord() async {
+    final healthProvider = context.read<HealthProvider>();
     final int? steps = int.tryParse(stepsController.text.trim());
     final int? calories = int.tryParse(caloriesController.text.trim());
     final int? water = int.tryParse(waterController.text.trim());
+
 
     if (steps == null ||
         calories == null ||
@@ -109,8 +113,11 @@ class _EditScreenState extends State<EditScreen> {
           '${selectedDate.day.toString().padLeft(2, '0')}';
 
       // Check whether another record exists for this date.
-      final existingRecords =
-          await _healthController.getRecordsByDate(formattedDate);
+      await healthProvider.searchRecordsByDate(formattedDate);
+
+      if (!mounted) return;
+
+      final existingRecords = healthProvider.searchResults;
 
       final bool dateAlreadyExists = existingRecords.any(
         (record) => record.id != widget.record.id,
@@ -131,6 +138,7 @@ class _EditScreenState extends State<EditScreen> {
         return;
       }
 
+
       final updatedRecord = HealthRecord(
         id: widget.record.id,
         date: formattedDate,
@@ -139,7 +147,8 @@ class _EditScreenState extends State<EditScreen> {
         waterMl: water,
       );
 
-      await _healthController.updateRecord(updatedRecord);
+      await healthProvider.updateRecord(updatedRecord);
+
 
       if (!mounted) return;
 

@@ -3,7 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../controllers/health_controller.dart';
+import 'package:provider/provider.dart';
+
+import '../controllers/health_provider.dart';
 import '../models/health_record.dart';
 import 'add_details_screen.dart';
 import 'edit_screen.dart';
@@ -24,7 +26,7 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
-  late final HealthController _healthController;
+
 
   List<HealthRecord> healthRecords = [];
 
@@ -46,7 +48,7 @@ class _ListScreenState extends State<ListScreen> {
   void initState() {
     super.initState();
 
-    _healthController = HealthController(userId: widget.userId);
+
 
     loadRecords();
   }
@@ -59,19 +61,23 @@ class _ListScreenState extends State<ListScreen> {
     });
 
     try {
-      List<HealthRecord> records;
+  final healthProvider = context.read<HealthProvider>();
 
-      if (selectedDate != null) {
-        final formattedDate = formatDatabaseDate(selectedDate!);
+  List<HealthRecord> records;
 
-        records = await _healthController.getRecordsByDate(
-          formattedDate,
-        );
-      } else {
-        records = await _healthController.getAllRecords(
-          newestFirst: newestFirst,
-        );
-      }
+  if (selectedDate != null) {
+    final formattedDate = formatDatabaseDate(selectedDate!);
+
+    await healthProvider.searchRecordsByDate(formattedDate);
+
+    records = healthProvider.searchResults;
+  } else {
+    await healthProvider.loadRecords(
+      newestFirst: newestFirst,
+    );
+
+    records = healthProvider.healthRecords;
+  }
 
       if (!mounted) return;
 
@@ -194,7 +200,7 @@ class _ListScreenState extends State<ListScreen> {
                     throw Exception('Record ID is missing.');
                   }
 
-                  await _healthController.deleteRecord(record.id!);
+                  await context.read<HealthProvider>().deleteRecord(record.id!);
 
                   if (!mounted) return;
 

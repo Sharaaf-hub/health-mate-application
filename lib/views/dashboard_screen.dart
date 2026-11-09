@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../controllers/health_controller.dart';
+import '../controllers/health_provider.dart';
 import '../controllers/user_provider.dart';
-import '../models/health_record.dart';
+
+
 import 'add_details_screen.dart';
 import 'list_screen.dart';
 import 'search_screen.dart';
@@ -25,7 +26,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  late final HealthController _healthController;
+
   late final UserProvider _userProvider;
 
   int stepGoal = 10000;
@@ -56,7 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
 
-    _healthController = HealthController(userId: widget.userId);
+
     _userProvider = UserProvider();
     _userProvider.loadUserName(widget.userId);
 
@@ -70,56 +71,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // Load today's record, saved goals and weekly summary.
-  Future<void> loadDashboardData() async {
+Future<void> loadDashboardData() async {
+  setState(() {
+    isLoading = true;
+    errorMessage = null;
+  });
+
+  try {
+    final healthProvider = context.read<HealthProvider>();
+
+    await healthProvider.loadDashboardData();
+
+    if (!mounted) return;
+
     setState(() {
-      isLoading = true;
-      errorMessage = null;
+      steps = healthProvider.steps;
+      calories = healthProvider.calories;
+      waterMl = healthProvider.waterMl;
+
+      stepGoal = healthProvider.stepGoal;
+      waterGoal = healthProvider.waterGoal;
+
+      weeklySteps = healthProvider.weeklySteps;
+      weeklyWater = healthProvider.weeklyWater;
+      weeklyCalories = healthProvider.weeklyCalories;
+
+      isLoading = false;
     });
+  } catch (error) {
+    if (!mounted) return;
 
-    try {
-      final List<HealthRecord> records =
-          await _healthController.getTodayRecords();
-
-      final int savedWaterGoal =
-          await _healthController.getWaterGoal();
-
-      final int savedStepGoal =
-          await _healthController.getStepGoal();
-
-      final Map<String, int> weeklySummary =
-          await _healthController.getWeeklySummary();
-
-      if (!mounted) return;
-
-      setState(() {
-        if (records.isNotEmpty) {
-          steps = records.first.steps;
-          calories = records.first.calories;
-          waterMl = records.first.waterMl;
-        } else {
-          steps = 0;
-          calories = 0;
-          waterMl = 0;
-        }
-
-        stepGoal = savedStepGoal;
-        waterGoal = savedWaterGoal;
-
-        weeklySteps = weeklySummary['steps'] ?? 0;
-        weeklyWater = weeklySummary['waterMl'] ?? 0;
-        weeklyCalories = weeklySummary['calories'] ?? 0;
-
-        isLoading = false;
-      });
-    } catch (error) {
-      if (!mounted) return;
-
-      setState(() {
-        errorMessage = 'Unable to load dashboard information.';
-        isLoading = false;
-      });
-    }
+    setState(() {
+      errorMessage = 'Unable to load dashboard information.';
+      isLoading = false;
+    });
   }
+}
+
+
 
   // Allow the user to change the daily step goal.
   Future<void> showStepGoalDialog() async {
@@ -212,7 +201,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 });
 
                 try {
-                  await _healthController.saveStepGoal(newGoal);
+                  await context.read<HealthProvider>().saveStepGoal(newGoal);
 
                   if (!mounted) return;
 
@@ -360,7 +349,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 });
 
                 try {
-                  await _healthController.saveWaterGoal(newGoal);
+                  await context.read<HealthProvider>().saveWaterGoal(newGoal);
 
                   if (!mounted) return;
 
@@ -938,7 +927,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                                   const SizedBox(height: 12),
 
-                                  
+
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -1239,7 +1228,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-      
+
 
         // Full-width premium glass bottom navigation.
         bottomNavigationBar: ClipRect(

@@ -22,4 +22,17 @@ class UserProvider extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
   }
+
+  // Register a new user account.
+  Future<void> registerUser({
+      required String username,
+      required String email,
+      required String password,
+    }) async {
+      await DatabaseHelper.instance.registerUser(
+        username: username,
+        email: email,
+        password: password,
+      );
+    }
 }

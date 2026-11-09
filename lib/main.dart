@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'controllers/health_provider.dart';
+import 'controllers/user_provider.dart';
 import 'views/login_screen.dart';
 
 Future<void> main() async {
@@ -14,17 +17,27 @@ class HealthMateApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'HealthMate',
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF7F6EF),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF234B3A),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => HealthProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => UserProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'HealthMate',
+        theme: ThemeData(
+          useMaterial3: true,
+          scaffoldBackgroundColor: const Color(0xFFF7F6EF),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF234B3A),
+          ),
+        ),
+        home: const LoginScreen(),
       ),
-      home: const LoginScreen(),
     );
   }
 }

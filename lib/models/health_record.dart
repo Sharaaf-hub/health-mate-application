@@ -16,7 +16,6 @@ class HealthRecord {
     required this.waterMl,
   });
 
-  // Create a health record using information retrieved from SQLite.
   factory HealthRecord.fromMap(Map<String, dynamic> data) {
     return HealthRecord(
       id: data['id'] as int?,
@@ -28,7 +27,6 @@ class HealthRecord {
     );
   }
 
-  // Prepare health record information for database storage.
   Map<String, dynamic> toMap() {
     return {
       'id': id,

@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import '../controllers/health_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../database/database_helper.dart';
 import 'dashboard_screen.dart';
@@ -63,6 +65,12 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       final int userId = user['id'] as int;
+
+      if (!mounted) return;
+
+      await context.read<HealthProvider>().setUserId(userId);
+
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,

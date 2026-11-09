@@ -3,7 +3,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../database/database_helper.dart';
+import 'package:provider/provider.dart';
+
+import '../controllers/user_provider.dart';
+
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -82,8 +85,8 @@ class _SignupScreenState extends State<SignupScreen> {
     });
 
     try {
-      // Save the new account in the SQLite database.
-      await DatabaseHelper.instance.registerUser(
+      // Register the new account using UserProvider.
+      await context.read<UserProvider>().registerUser(
         username: username,
         email: email,
         password: password,

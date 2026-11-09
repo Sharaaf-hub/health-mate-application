@@ -3,7 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../controllers/health_controller.dart';
+import 'package:provider/provider.dart';
+import '../controllers/health_provider.dart';
 import '../models/health_record.dart';
 import 'add_details_screen.dart';
 import 'list_screen.dart';
@@ -22,7 +23,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  late final HealthController _healthController;
+
 
   DateTime? selectedDate;
   bool hasSearched = false;
@@ -36,11 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
   static const Color _mutedGreen = Color(0xFF52665B);
   static const Color _glassColor = Color(0xFFDDEBDD);
 
-  @override
-  void initState() {
-    super.initState();
-    _healthController = HealthController(userId: widget.userId);
-  }
+
 
   // Format date for display.
   String formatDate(DateTime date) {
@@ -108,15 +105,15 @@ class _SearchScreenState extends State<SearchScreen> {
     try {
       final formattedDate = formatDatabaseDate(selectedDate!);
 
-      final results = await _healthController.getRecordsByDate(
-        formattedDate,
-      );
+      final healthProvider = context.read<HealthProvider>();
 
-      if (!mounted) return;
+        await healthProvider.searchRecordsByDate(formattedDate);
 
-      setState(() {
-        searchResults = results;
-        hasSearched = true;
+        if (!mounted) return;
+
+        setState(() {
+          searchResults = healthProvider.searchResults;
+          hasSearched = true;
       });
     } catch (error) {
       if (!mounted) return;
