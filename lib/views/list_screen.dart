@@ -1080,7 +1080,7 @@ class _ListScreenState extends State<ListScreen> {
     );
   }
 
-  // Dashboard-style bottom navigation item.
+  
   Widget _buildNavItem({
     required IconData icon,
     required String label,
@@ -1093,23 +1093,19 @@ class _ListScreenState extends State<ListScreen> {
       hoverColor: const Color(0xFFE6EEE5),
       splashColor: const Color(0xFFD5E5D7),
       onTap: () async {
+        
         if (index == 0) {
-          Navigator.popUntil(
-            context,
-            (route) => route.isFirst,
-          );
-        } else if (index == 1) {
-          await Navigator.push(
+          Navigator.popUntil(context, (route) => route.isFirst);
+      }
+        else if (index == 1) {
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) =>
                   AddDetailsScreen(userId: widget.userId),
             ),
           );
-
-          if (mounted) {
-            await loadRecords();
-          }
+        
         } else if (index == 2) {
           await loadRecords();
         } else if (index == 3) {

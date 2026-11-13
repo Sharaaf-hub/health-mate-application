@@ -96,12 +96,12 @@ class _SignupScreenState extends State<SignupScreen> {
 
       showMessage('Account created successfully! Please log in.');
 
-      // Return to the login screen.
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => const LoginScreen(),
         ),
+        (route) => false,
       );
     } on DatabaseException catch (e) {
       if (!mounted) return;

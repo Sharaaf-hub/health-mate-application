@@ -414,12 +414,15 @@ class _AddDetailsScreenState extends State<AddDetailsScreen> {
 
   // Bottom navigation actions.
   Future<void> _handleNavigation(int index) async {
+    
     if (index == 0) {
-      Navigator.popUntil(
-        context,
-        (route) => route.isFirst,
-      );
-    } else if (index == 1) {
+          Navigator.popUntil(
+      context,
+      (route) => route.isFirst,
+        );
+    }
+    
+    else if (index == 1) {
       // Add is already the active page.
     } else if (index == 2) {
       await Navigator.push(
